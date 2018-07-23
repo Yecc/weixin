@@ -9,7 +9,7 @@ class Getpage:
             'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36 MicroMessenger/6.5.2.501 NetType/WIFI WindowsWechat Chrome/39.0.2171.95 Safari/537.36 MicroMessenger/6.5.2.501 NetType/WIFI WindowsWechat',
             'path': '/wechat/getCafe/getreceivegiftpacksactivity?id=9C2I7YItgq5A7fRCc7usMOox4afPggUAR4g97A%2Cry2I7YItWq5U7fRCVF0P9tOWEWWpvCIGY8Gszw&isLook=false',
             'authority': 'm.lyancoffee.com',
-            'cookie': 'SESSION=e50cdc8d-1ca7-4fde-b210-8d57b2847582; SERVERID=8daf02eec50c13f6162e7fd15c04a67e|1532334346|1532334346',
+            'cookie': 'SESSION=a649e360-91ba-4f3f-8537-2e857c8c9634; SERVERID=854725ca38783d348a5623892a765149|1532356921|1532356919',
             'accept': '*/*',
             'accept-encoding': 'br, gzip, deflate',
             'accept-language': 'zh-cn',
@@ -21,11 +21,7 @@ class Getpage:
             'page': 2,
             'pagesize': 20
         }
-        self.urllist = [
-            '1lPxlEVTRddAlNZC0ArTDOPLTJwtikbh9tSzPA%2CjlPxlEVTAteBlNZCswymCJotcyneDr1o8cuFCg',
-            '_12D5l5dXqVA5v9CuPh2qATl9rwmtBWvQkkbPw%2CpF2D5l5dIqUP5v9CZx6-oQaT9VEaGXamSx_vBQ',
-            '_RvIrRsbG-5Arf1CLFge6a1hYzD8rWAYsQUwng%2CphvIrRsbY-63rf1CQghWHktBxChrvefJdnsd8A'
-        ]
+        self.urllist = []
     def r_get(self, urlid):
         self.url = 'https://m.lyancoffee.com/wechat/getCafe/getreceivegiftpacksactivity?id=' + urlid + '&isLook=false'
         print(self.url)
@@ -73,7 +69,7 @@ class Parser:
     def end_parser(self, packet):
         # self.firsttime = packet[0]['receiveTime']
         # self.lasttime = packet[-2]['receiveTime']
-        self.order = packet.pop()
+        self.order = str(packet.pop())
 
 
         for gift in packet:
@@ -88,13 +84,31 @@ class Parser:
             self.csvrow = []
         print(self.csvdata)
 
-        
+class Csvio:
+    def __init__(self):
+        self.id_list = []
 
+    def csvwrite(self, datapacket):
+        with open('coffee.csv', 'a', newline='', encoding='utf-8-sig') as f:
+            writer = csv.writer(f)
+            writer.writerows(datapacket)
+            f.close()
+        parser.csvdata = []
 
+    def csvread(self, filename):
+        with open(filename, 'r') as f:
+            rows = csv.reader(f)
+            for row in rows:
+                self.id_list.extend(row)
+            f.close()
+        return self.id_list
 
 if __name__ == '__main__':
     getpage = Getpage()
     parser = Parser()
+    csvio = Csvio()
+    getpage.urllist = csvio.csvread('LinkShareItemscsv.csv')
+    print(getpage.urllist)
     for urlid in getpage.urllist:
         pagecode = getpage.r_get(urlid)
         orderid, receiveid = parser.dataparser(pagecode)
@@ -115,8 +129,7 @@ if __name__ == '__main__':
     print('-----------------------红包数量：',len(parser.packetlist))
     for packet in parser.packetlist:
         parser.end_parser(packet)
-
-
+        csvio.csvwrite(parser.csvdata)
 
         
 
