@@ -1,6 +1,7 @@
 import requests
 import json
 import csv
+import datetime
 
 class Getpage:
     def __init__(self):
@@ -9,7 +10,7 @@ class Getpage:
             'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36 MicroMessenger/6.5.2.501 NetType/WIFI WindowsWechat Chrome/39.0.2171.95 Safari/537.36 MicroMessenger/6.5.2.501 NetType/WIFI WindowsWechat',
             'path': '/wechat/getCafe/getreceivegiftpacksactivity?id=9C2I7YItgq5A7fRCc7usMOox4afPggUAR4g97A%2Cry2I7YItWq5U7fRCVF0P9tOWEWWpvCIGY8Gszw&isLook=false',
             'authority': 'm.lyancoffee.com',
-            'cookie': 'SESSION=a649e360-91ba-4f3f-8537-2e857c8c9634; SERVERID=854725ca38783d348a5623892a765149|1532356921|1532356919',
+            'cookie': 'SESSION=e3c7de73-1485-42d3-93cb-6b92afae870c; SERVERID=854725ca38783d348a5623892a765149|1532420539|1532420538',
             'accept': '*/*',
             'accept-encoding': 'br, gzip, deflate',
             'accept-language': 'zh-cn',
@@ -67,18 +68,26 @@ class Parser:
             return self.receiveid
 
     def end_parser(self, packet):
-        # self.firsttime = packet[0]['receiveTime']
-        # self.lasttime = packet[-2]['receiveTime']
+        self.lasttime = packet[0]['receiveTime']
+        self.firsttime = packet[-2]['receiveTime']
         self.order = str(packet.pop())
-
-
+        self.first_dt = datetime.datetime.strptime(self.firsttime, '%Y-%m-%d %H:%M:%S')
+        self.last_dt = datetime.datetime.strptime(self.lasttime, '%Y-%m-%d %H:%M:%S')
+        print((self.last_dt - self.first_dt).total_seconds()/60)
+        self.survival_time = (self.last_dt - self.first_dt).total_seconds()/60
         for gift in packet:
             self.customerName = gift['customerName']
             self.content = gift['content'][0]
+            if len(gift['content']) == 2:
+                self.content_price = gift['content'][1]
+            else:
+                self.content_price = ''
             self.time = gift['receiveTime']
             self.csvrow.append(self.order)
+            self.csvrow.append(str(self.survival_time))
             self.csvrow.append(self.customerName)
             self.csvrow.append(self.content)
+            self.csvrow.append(self.content_price)
             self.csvrow.append(self.time)
             self.csvdata.append(self.csvrow)
             self.csvrow = []
