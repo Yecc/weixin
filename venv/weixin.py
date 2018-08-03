@@ -10,7 +10,7 @@ class Getpage:
             'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36 MicroMessenger/6.5.2.501 NetType/WIFI WindowsWechat Chrome/39.0.2171.95 Safari/537.36 MicroMessenger/6.5.2.501 NetType/WIFI WindowsWechat',
             'path': '/wechat/getCafe/getreceivegiftpacksactivity?id=9C2I7YItgq5A7fRCc7usMOox4afPggUAR4g97A%2Cry2I7YItWq5U7fRCVF0P9tOWEWWpvCIGY8Gszw&isLook=false',
             'authority': 'm.lyancoffee.com',
-            'cookie': 'SESSION=e3c7de73-1485-42d3-93cb-6b92afae870c; SERVERID=854725ca38783d348a5623892a765149|1532420539|1532420538',
+            'cookie': 'SESSION=e53a504d-07db-4d70-abd8-b9a632e24ade; SERVERID=274e19eb8667b98755bc35641d1a5824|1533302728|1533302727',
             'accept': '*/*',
             'accept-encoding': 'br, gzip, deflate',
             'accept-language': 'zh-cn',
@@ -121,7 +121,7 @@ if __name__ == '__main__':
     for urlid in getpage.urllist:
         pagecode = getpage.r_get(urlid)
         orderid, receiveid = parser.dataparser(pagecode)
-        for page in range(2, 6):
+        for page in range(2, 3000):
             print(page)
             pagecode = getpage.r_post(orderid, receiveid, page)
             if len(pagecode) < 10:
